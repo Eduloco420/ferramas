@@ -1,4 +1,5 @@
 from app import mysql
+from flask import jsonify
 
 class ProductoModel:
     def obtener_todos(self):
@@ -20,12 +21,19 @@ class ProductoModel:
             
         return productos
     
-    def insertar(self, nombre, marca, codigo, precio, vigente):
+    def insertar(self, nombre, marca, codigo, precio):
         cursor = mysql.connection.cursor()
-        sql = "INSERT INTO producto (nombre, marca, codigo, precio, vigente) VALUES (%s, %s, %s, %s, %s)"
-        valores = (nombre, marca, codigo, precio, vigente)
+        sql = "INSERT INTO producto (nombre, marca, codigo, precio, vigente) VALUES (%s, %s, %s, %s, 1)"
+        valores = (nombre, marca, codigo, precio)
         cursor.execute(sql, valores)
         mysql.connection.commit()
         cursor.close()
 
+    def modificar(self, id, nombre, marca, codigo, precio, vigente):
+        cursor = mysql.connection.cursor()
+        sql = "UPDATE producto SET nombre = %s, marca = %s, codigo = %s, precio = %s, vigente = %s WHERE id = %s"
+        valores = (nombre, marca, codigo, precio, vigente, id)
+        cursor.execute(sql, valores)
+        mysql.connection.commit()
+        cursor.close()
     

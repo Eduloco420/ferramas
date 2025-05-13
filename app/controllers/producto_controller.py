@@ -15,10 +15,23 @@ class ProductoController:
         marca = datos.get('marca')
         codigo = datos.get('codigo')
         precio = datos.get('precio')
-        vigente = datos.get('vigente')
 
-        if not all([nombre, marca, codigo, precio, vigente is not None]):
+        if not all([nombre, marca, codigo, precio is not None]):
             return jsonify({'error': 'Faltan datos obligatorios'}), 400
 
-        self.modelo.insertar(nombre, marca, codigo, precio, vigente)
+        self.modelo.insertar(nombre, marca, codigo, precio)
         return jsonify({'mensaje': 'Producto agregado correctamente'}), 201
+
+    def modificar_producto(self, id):
+        datos = request.get_json()
+        nombre = datos.get('nombre')
+        marca = datos.get('marca')
+        codigo = datos.get('codigo')
+        precio = datos.get('precio')
+        vigente = datos.get('vigente')
+
+        if not all([nombre, marca, codigo, precio, vigente is not None ]):
+            return jsonify({'error': 'Faltan datos obligatorios'}), 400
+        
+        self.modelo.modificar(id, nombre, marca, codigo, precio, vigente)
+        return jsonify({'mensaje':'Producto modificado correctamente',}),201
