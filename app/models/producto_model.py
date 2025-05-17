@@ -1,5 +1,4 @@
 from app import mysql
-from flask import jsonify
 
 class ProductoModel:
     def obtener_todos(self):
@@ -21,6 +20,15 @@ class ProductoModel:
             
         return productos
     
+    def obtener_precio(self, id):
+        cursor = mysql.connection.cursor()
+        cursor.execute("SELECT precio FROM producto where id = %s", (id, ))
+        datos = cursor.fetchone()
+        cursor.close()
+
+        precio = datos[0]
+        return precio
+    
     def insertar(self, nombre, marca, codigo, precio):
         cursor = mysql.connection.cursor()
         sql = "INSERT INTO producto (nombre, marca, codigo, precio, vigente) VALUES (%s, %s, %s, %s, 1)"
@@ -36,4 +44,3 @@ class ProductoModel:
         cursor.execute(sql, valores)
         mysql.connection.commit()
         cursor.close()
-    

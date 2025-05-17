@@ -1,8 +1,10 @@
 from flask import Blueprint, jsonify
 from .controllers.producto_controller import ProductoController
+from .controllers.venta_controller import VentaController
 
 main = Blueprint('main', __name__)
 producto_controller = ProductoController()
+venta_controller = VentaController()
 
 @main.route('/productos', methods=['GET'])
 def productos():
@@ -24,3 +26,10 @@ def modificar_producto(id):
         return producto_controller.modificar_producto(id)
     except Exception as e:
         return jsonify({'mensaje':'Error modificando los datos'}), 400
+    
+@main.route('/venta', methods=['POST'])
+def ingresar_venta():
+    try:
+        return venta_controller.agregar_venta()
+    except Exception as e:
+        return jsonify({'mensaje': 'Error en la creación', 'error': str(e)}), 400 

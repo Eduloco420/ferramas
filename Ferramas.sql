@@ -29,13 +29,16 @@ CREATE TABLE `producto` (
 CREATE TABLE `ventas` (
   `id` int AUTO_INCREMENT PRIMARY KEY,
   `cliente` int,
-  `fecVenta` datetime
+  `fecVenta` datetime,
+  `valorVenta` float,
+  `estadoVenta` varchar(20)
 );
 
 CREATE TABLE `detalleVentas` (
   `id` int AUTO_INCREMENT PRIMARY KEY,
   `venta` int,
-  `producto` int
+  `producto` int,
+  `cantidad` int
 );
 
 CREATE TABLE `pago` (
