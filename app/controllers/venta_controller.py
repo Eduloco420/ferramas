@@ -44,24 +44,27 @@ class VentaController:
                 'producto':producto,
                 'cant':cant,
                 'valor_unitario':precio_producto,
-                'valor_total':valor_total
+                'valor_total':valor_producto
             })
 
         connection = mysql.connection
         cursor = connection.cursor()
+        connection.begin()
 
         try:
-            venta_id = self.modelo.ingresar(cliente, valor_total)
+            venta_id = self.modelo.ingresar(cursor, cliente, valor_total)
 
             for prod in detalle_productos:
-                self.modelo.ingresar_detalle(venta_id, prod['producto'], prod['cant'])
+                self.modelo.ingresar_detalle(cursor, venta_id, prod['producto'], prod['cant'])
 
             connection.commit()
 
             return jsonify({'mensaje':'Se a ingresado correctamente la venta', 'venta_id':venta_id, 'detalle':detalle_productos})
 
         except Exception as e:
-            return 'hola'            
+            connection.rollback()
+            return jsonify({'mensaje':'Error ingresando la venta', "error":str(e)}), 400
+
                 
 
 

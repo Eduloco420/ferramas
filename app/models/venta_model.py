@@ -19,17 +19,14 @@ class VentaModel:
 
         return ventas
     
-    def ingresar(self, cliente, valor_total):
-        cursor = mysql.connection.cursor()
+    def ingresar(self, cursor, cliente, valor_total):
         sql = "INSERT INTO ventas (cliente, fecVenta, valorVenta, estadoVenta) VALUES (%s, now(), %s, 'Pendiente')"
         cursor.execute(sql, (cliente, valor_total))
-        cursor.close()
 
         venta_id = cursor.lastrowid
         return venta_id
     
-    def ingresar_detalle(self, venta, producto, cant):
-        cursor = mysql.connection.cursor()
+    def ingresar_detalle(self, cursor, venta, producto, cant):
         sql = "INSERT INTO detalleVentas (venta, producto, cantidad) VALUES (%s,%s,%s)"
         cursor.execute(sql, (venta, producto, cant))
 
