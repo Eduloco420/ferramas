@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Retorno de Webpay</title>
+</head>
+<body>
+    <h1>Retorno desde Webpay</h1>
+    <p id="token-info">Cargando...</p>
+    <p id="estado-pago">Validando pago...</p>
+
+    <script>
+        const params = new URLSearchParams(window.location.search);
+        const token = params.get('token_ws');
+
+        if (token) {
+            document.getElementById('token-info').innerText = `Token recibido: ${token}`;
+
+            fetch('http://127.0.0.1:5002/pago/confirmar', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ token_ws: token })
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error("No se pudo confirmar el pago.");
+                }
+                return response.json();
+            })
+            .then(data => {
+                console.log('Respuesta del backend:', data);
+                const estado = data.status || data.estado || 'Respuesta inválida';
+                document.getElementById('estado-pago').innerText = `Estado del pago: ${estado}`;
+            })
+            .catch(error => {
+                console.error('Error al confirmar el pago:', error);
+                document.getElementById('estado-pago').innerText = 'Error confirmando el pago.';
+            });
+        } else {
+            document.getElementById('token-info').innerText = 'Token no recibido.';
+            document.getElementById('estado-pago').innerText = 'No se pudo verificar el estado del pago.';
+        }
+    </script>
+</body>
+</html>

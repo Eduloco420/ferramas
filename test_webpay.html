@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+<h2>Pagar con Webpay</h2>
+    <button onclick="pagarWebpay()">Iniciar Pago</button>
+
+    <script>
+        async function pagarWebpay() {
+            try {
+                const response = await fetch('http://127.0.0.1:5002/pago', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ venta: 2 })
+                });
+
+                if (!response.ok) {
+                    throw new Error("Error al contactar el backend");
+                }
+
+                const data = await response.json();
+                const token = data.token;
+                const url = data.url;
+
+                const form = document.createElement('form');
+                form.method = 'POST';
+                form.action = url;
+
+                const input = document.createElement('input');
+                input.type = 'hidden';
+                input.name = 'token_ws';
+                input.value = token;
+
+                form.appendChild(input);
+                document.body.appendChild(form);
+                form.submit();
+
+            } catch (error) {
+                alert("Error iniciando el pago: " + error.message);
+            }
+        }
+    </script>
+</body>
+</html>

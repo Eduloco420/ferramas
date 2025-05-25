@@ -1,18 +1,20 @@
 from flask import jsonify, request
 from app.models.venta_model import VentaModel
-from app.models.producto_model import ProductoModel
 from app import mysql
+import requests
 
 
 class VentaController:
     def __init__(self):
         self.modelo = VentaModel()
-        self.modelo_producto = ProductoModel()
-
 
     def listar_ventas(self):
-        productos = self.modelo.obtener_todos()
-        return jsonify(productos), 200
+        venta = self.modelo.obtener_todos()
+        return jsonify(venta), 200
+    
+    def ver_venta(self, id):
+        venta = self.modelo.obtener_venta(id)
+        return jsonify(venta), 200
     
     def agregar_venta(self):
         datos = request.get_json()
@@ -23,7 +25,7 @@ class VentaController:
             return jsonify({'error': 'Faltan datos obligatorios'}), 400
 
         detalle_productos = []
-        valor_total = 0   
+        valor_total = 0
 
         for p in productos:
             producto = p.get('producto')
@@ -32,10 +34,16 @@ class VentaController:
             if not all([producto, cant]):
                 return jsonify({'error': 'Faltan datos de producto'}), 400
 
-            precio_producto = self.modelo_producto.obtener_precio(producto)
+            response = requests.get(f'http://127.0.0.1:5000/productos/precio/{producto}')
+
+            if response.status_code == 200:
+                data = response.text
+                precio_producto = float(data)
+            else:
+                return jsonify({'mensaje':'error llamando al servicio'}), 400
 
             if not precio_producto:
-                return jsonify({'error': f'Producto con ID {producto} no encontrado'}), 404
+                return jsonify({'mensaje': f'Producto con ID {producto} no encontrado'}), 404
 
             valor_producto = precio_producto * cant
             valor_total += valor_producto
@@ -64,8 +72,11 @@ class VentaController:
         except Exception as e:
             connection.rollback()
             return jsonify({'mensaje':'Error ingresando la venta', "error":str(e)}), 400
-
-                
-
-
         
+    def modificar_venta(self, venta):
+        data = request.get_json()
+        estado = data['estado']
+        
+        self.modelo.cambiar_estado(venta=venta, estado=estado)
+
+        return jsonify({'mensaje':'Cambio realizado'})

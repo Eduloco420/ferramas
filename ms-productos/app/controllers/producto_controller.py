@@ -9,6 +9,10 @@ class ProductoController:
         productos = self.modelo.obtener_todos()
         return jsonify(productos)
     
+    def ver_precio(self, id):
+        precio = self.modelo.obtener_precio(id)
+        return str(precio)
+    
     def agregar_producto(self):
         datos = request.get_json()
         nombre = datos.get('nombre')

@@ -46,7 +46,7 @@ CREATE TABLE `pago` (
   `venta` int,
   `montoPago` float,
   `token` varchar(64),
-  `status` varchar(10),
+  `status` varchar(64),
   `card_detail` varchar(255),
   `transaction_date` datetime
 );
