@@ -3,11 +3,16 @@ from app.models.pago_model import PagoModel
 import requests
 import time
 from datetime import datetime
+import os
+from dotenv import load_dotenv
 
-WEBPAY = 'https://webpay3gint.transbank.cl'
-RETORNO = 'http://localhost:5500/retorno.html'
-KEY_ID = '597055555532'
-KEY_SECRET = '579B532A7440BB0C9079DED94D31EA1615BACEB56610332264630D42D0A36B1C'
+dotenv_path = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))), '.env')
+load_dotenv(dotenv_path)
+
+WEBPAY = os.getenv('WEBPAY')
+RETORNO = os.getenv('RETORNO')
+KEY_ID = os.getenv('KEY_ID')
+KEY_SECRET = os.getenv('KEY_SECRET')
 
 class PagoController:
     def __init__(self):
