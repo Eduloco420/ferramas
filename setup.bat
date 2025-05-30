@@ -1,12 +1,14 @@
 @echo off
 SETLOCAL
 
+:: Obtener el path base relativo a este script
+set BASE_PATH=%~dp0
+
 :: Definir la lista de microservicios
 set MICRO1=ms-ventas
 set MICRO2=ms-productos
 set MICRO3=ms-pagos
 set MICRO4=ms-auth
-
 
 :: Función para crear y configurar el entorno virtual
 call :setup_venv %MICRO1%
@@ -23,7 +25,7 @@ set MICROSERVICE=%1
 echo Creando entorno virtual en %MICROSERVICE%...
 
 :: Ir al directorio del microservicio
-cd C:\Users\plazavespucio\ferramas\%MICROSERVICE%
+pushd "%BASE_PATH%\%MICROSERVICE%"
 
 :: Verificar si el directorio venv existe. Si no, crear el entorno virtual.
 IF NOT EXIST venv (
@@ -34,7 +36,7 @@ IF NOT EXIST venv (
 )
 
 :: Activar el entorno virtual
-call venv\Scripts\activate.bat
+call venv\Scripts\activate
 
 :: Instalar las dependencias si existe el archivo requirements.txt
 IF EXIST requirements.txt (
@@ -47,5 +49,6 @@ IF EXIST requirements.txt (
 :: Desactivar el entorno virtual
 deactivate
 
+popd
 echo Proceso completado para %MICROSERVICE%.
 goto :eof
