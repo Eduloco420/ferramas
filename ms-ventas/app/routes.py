@@ -16,14 +16,14 @@ def ver_ventas():
     try:
         return venta_controller.listar_ventas()
     except Exception as e:
-        return jsonify({'mensaje': 'Error en la creación', 'error': str(e)}), 400     
+        return jsonify({'mensaje': 'Error obteniendo ventas', 'error': str(e)}), 400     
     
 @main.route('/venta/<int:id>', methods=['GET'])
 def ver_venta(id):
     try:
         return venta_controller.ver_venta(id)
     except Exception as e:
-        return jsonify({'mensaje': 'Error en la creación', 'error': str(e)}), 400      
+        return jsonify({'mensaje': 'Error obteniendo venta', 'error': str(e)}), 400      
 
 @main.route('/venta/<int:id>', methods=['PUT'])
 def modificar_venta(id):

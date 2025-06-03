@@ -1,16 +1,13 @@
 @echo off
 SETLOCAL
 
-:: Obtener el path base relativo a este script
 set BASE_PATH=%~dp0
 
-:: Definir la lista de microservicios
 set MICRO1=ms-ventas
 set MICRO2=ms-productos
 set MICRO3=ms-pagos
 set MICRO4=ms-auth
 
-:: Función para crear y configurar el entorno virtual
 call :setup_venv %MICRO1%
 call :setup_venv %MICRO2%
 call :setup_venv %MICRO3%
@@ -19,15 +16,12 @@ call :setup_venv %MICRO4%
 echo Todos los entornos virtuales han sido configurados.
 goto :eof
 
-:: Subrutina para crear y configurar el entorno virtual en un microservicio
 :setup_venv
 set MICROSERVICE=%1
 echo Creando entorno virtual en %MICROSERVICE%...
 
-:: Ir al directorio del microservicio
 pushd "%BASE_PATH%\%MICROSERVICE%"
 
-:: Verificar si el directorio venv existe. Si no, crear el entorno virtual.
 IF NOT EXIST venv (
     echo Creando entorno virtual...
     python -m venv venv
@@ -35,10 +29,8 @@ IF NOT EXIST venv (
     echo El entorno virtual ya existe en %MICROSERVICE%\venv
 )
 
-:: Activar el entorno virtual
 call venv\Scripts\activate
 
-:: Instalar las dependencias si existe el archivo requirements.txt
 IF EXIST requirements.txt (
     echo Instalando dependencias...
     pip install -r requirements.txt
@@ -46,7 +38,6 @@ IF EXIST requirements.txt (
     echo No se encontró requirements.txt en %MICROSERVICE%.
 )
 
-:: Desactivar el entorno virtual
 deactivate
 
 popd

@@ -20,6 +20,26 @@ class ProductoModel:
             
         return productos
     
+    def obtener_producto(self, id):
+        cursor = mysql.connection.cursor()
+        sql = "SELECT * FROM producto WHERE id = %s"
+        cursor.execute(sql, (id, ))
+        datos = cursor.fetchone()
+        cursor.close()
+
+        producto = {
+            'id':datos[0],
+            'nombre':datos[1],
+            'marca':datos[2],
+            'codigo':datos[3],
+            'precio':datos[4],
+            'vigente':datos[5]
+        }
+
+        return producto
+
+
+    
     def obtener_precio(self, id):
         cursor = mysql.connection.cursor()
         cursor.execute("SELECT precio FROM producto where id = %s", (id, ))

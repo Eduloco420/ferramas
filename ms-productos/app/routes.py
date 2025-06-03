@@ -11,6 +11,13 @@ def productos():
     except Exception as e:
         return jsonify({'mensaje':'Error obteniendo los datos','error':str(e)})
 
+@main.route('/productos/<int:id>', methods=['GET'])
+def producto(id):
+    try:
+        return producto_controller.listar_producto(id)
+    except Exception as e:
+        return jsonify({'mensaje':'Error obteniendo los datos', 'Error': str(e)})        
+
 @main.route('/productos', methods=['POST'])
 def agregar_producto():
     try:

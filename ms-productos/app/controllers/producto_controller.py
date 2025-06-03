@@ -9,6 +9,15 @@ class ProductoController:
         productos = self.modelo.obtener_todos()
         return jsonify(productos)
     
+    def listar_producto(self, id):
+        try:
+            producto = self.modelo.obtener_producto(id)
+            if producto['vigente'] == 0:
+                return jsonify({'mensaje':'Producto no vigente'})
+            return producto 
+        except Exception as e:
+            return jsonify({'mensaje':'Error buscando producto', 'Error': str(e)})
+    
     def ver_precio(self, id):
         precio = self.modelo.obtener_precio(id)
         return str(precio)

@@ -32,11 +32,15 @@ class PagoController:
             data = response.json()
             monto_venta = float(data['valorVenta'])
             cliente = data['cliente']
+            estado = data['EstadoVenta']
         else:
-            return jsonify({'mensaje':'error llamando al servicio'})
+            return jsonify({'mensaje':'error llamando al servicio'}), 400
 
         if not monto_venta:
-            return jsonify({'mensaje':f'No se ha encontrado la venta {venta}'})
+            return jsonify({'mensaje':f'No se ha encontrado la venta {venta}'}), 404
+        
+        if estado is not "Pendiente":
+            return jsonify({'mensaje':'Venta ya se encuentra pagada'}), 418
         
         buy_order = f'venta{venta}id{int(time.time())}'
         session_id = f'sesion{cliente}{int(time.time())}'
