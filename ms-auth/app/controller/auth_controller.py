@@ -1,10 +1,10 @@
-import jwt
 import datetime
 from flask import request, jsonify
 import bcrypt
 from app.models.auth_model import AuthModel
 from dotenv import load_dotenv
 import os
+import requests
 
 dotenv_path = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))), '.env')
 load_dotenv(dotenv_path)
@@ -32,26 +32,13 @@ class AuthController:
             payload = {
                 'mail': usuario['mail'],
                 'rol': usuario['rol'],
-                'exp': datetime.datetime.utcnow() + datetime.timedelta(hours=1)
             }
 
-            token = jwt.encode(payload, SECRET_KEY, algorithm='HS256')
+            data = requests.post('http://127.0.0.1:5006/token/generar', json=payload)
 
-            return jsonify({'token': token}), 200
+            token = data['token']
+
+            return token
 
         except Exception as e:
             return jsonify({'mensaje':'Ha ocurrido un error durante el inicio de sesión', 'Error':str(e)}), 400
-
-    def validar_token(self):
-        token = request.headers['Authorization']
-        try:
-            return jwt.decode(token, SECRET_KEY, algorithms='HS256')
-        except jwt.exceptions.DecodeError:
-            response = jsonify({"mensaje":"Token Invalido"})
-            response.status_code = 401
-            return response
-        except jwt.exceptions.ExpiredSignatureError:
-            response = jsonify({"mensaje":"Token Expirado"})
-            response.status_code = 401
-            return response
-

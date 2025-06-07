@@ -6,4 +6,6 @@
 |ms-pagos    |   5002   |
 |ms-Auth     |   5003   |
 |ms-register |   5004   |
+|ms-mail     |   5005   |
+|ms-token    |   5006   |
 -------------------------
