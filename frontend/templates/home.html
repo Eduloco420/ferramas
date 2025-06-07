@@ -1,0 +1,34 @@
+{% extends 'base.html' %}
+
+{% block title %}Inicio - Ferremas{% endblock %}
+
+{% block content %}
+<h2 class="text-center mb-4">¿Quiénes Somos?</h2>
+
+<div class="row justify-content-center">
+  <div class="col-md-10 quienes-somos-texto">
+    <p class="text-center mb-0">
+      FERREMAS es una distribuidora chilena con más de 40 años de experiencia en el rubro de la ferretería y construcción. Contamos con 7 sucursales a nivel nacional y ofrecemos productos de calidad como herramientas, pinturas, materiales eléctricos y artículos de seguridad.
+
+Trabajamos con marcas reconocidas como Bosch, Makita, Stanley y Sika, combinando atención presencial y venta online para entregar un servicio ágil, confiable y cercano a nuestros clientes.
+    </p>
+  </div>
+</div>
+
+<!-- Imágenes lado a lado -->
+<div class="row justify-content-center mt-4">
+  <div class="col-md-5 d-flex justify-content-center">
+    <img src="{{ url_for('static', filename='img/materiales.png') }}" class="quienes-img shadow" alt="Camión Ferremas">
+  </div>
+  <div class="col-md-5 d-flex justify-content-center">
+    <img src="{{ url_for('static', filename='img/estantes.jpeg') }}" class="quienes-img shadow" alt="Estantería Ferremas">
+  </div>
+</div>
+
+<!-- Mapa -->
+<div class="text-center my-5">
+  <h2 class="mb-4">¿Dónde estamos?</h2>
+  <p>Av. Santa Rosa 123, Santiago.</p>
+  <iframe src="https://www.google.com/maps/embed?..." width="300" height="250" style="border:0; border-radius: 10px;" allowfullscreen loading="lazy"></iframe>
+</div>
+{% endblock %}

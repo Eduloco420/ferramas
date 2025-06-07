@@ -1,0 +1,33 @@
+<!-- templates/login.html -->
+{% extends "base.html" %}
+
+{% block title %}Iniciar Sesión - Ferremas{% endblock %}
+
+{% block content %}
+
+<div class="d-flex justify-content-center align-items-center" style="min-height: 60vh;">
+  <div class="card shadow p-4" style="width: 100%; max-width: 400px;">
+    <h3 class="text-center mb-4">Iniciar Sesión</h3>
+    <form method="POST" novalidate>
+      <div class="mb-3">
+        <label for="correo" class="form-label">Correo:</label>
+        <input type="email" class="form-control" name="correo" id="correo" required>
+      </div>
+      <div class="mb-3">
+        <label for="password" class="form-label">Contraseña:</label>
+        <input type="password" class="form-control" name="password" id="password" required>
+      </div>
+      {% if mensaje %}
+      <div class="alert alert-danger" role="alert">
+        {{ mensaje }}
+      </div>
+      {% endif %}
+      <button type="submit" class="btn btn-primary w-100">Ingresar</button>
+    </form>
+    <div class="text-center mt-3">
+      <a href="/" class="btn btn-secondary w-100">Volver al Inicio</a>
+    </div>
+  </div>
+</div>
+
+{% endblock %}
