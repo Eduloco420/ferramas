@@ -60,6 +60,12 @@ CREATE TABLE `despacho` (
   `comuna` int
 );
 
+CREATE TABLE `imagenes` (
+  `id` int AUTO_INCREMENT PRIMARY KEY,
+  `producto` int,
+  `nomArchivo` varchar(255)
+);
+
 ALTER TABLE `detalleVentas` ADD FOREIGN KEY (`producto`) REFERENCES `producto` (`id`);
 
 ALTER TABLE `detalleVentas` ADD FOREIGN KEY (`venta`) REFERENCES `ventas` (`id`);
@@ -71,3 +77,5 @@ ALTER TABLE `pago` ADD FOREIGN KEY (`venta`) REFERENCES `ventas` (`id`);
 ALTER TABLE `despacho` ADD FOREIGN KEY (`venta`) REFERENCES `ventas` (`id`);
 
 ALTER TABLE `user` ADD FOREIGN KEY (`rol`) REFERENCES `rol` (`id`);
+
+ALTER TABLE `imagenes` ADD FOREIGN KEY (`producto`) REFERENCES `producto` (`id`);
