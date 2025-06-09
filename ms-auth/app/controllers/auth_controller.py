@@ -10,6 +10,7 @@ dotenv_path = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(os.pa
 load_dotenv(dotenv_path)
 
 SECRET_KEY = os.getenv('SECRET_KEY')
+URL_MS_TOKEN = os.getenv('URL_MS_TOKEN')
 
 class AuthController:
     def __init__(self):
@@ -34,7 +35,7 @@ class AuthController:
                 'rol': usuario['rol'],
             }
 
-            data = requests.post('http://127.0.0.1:5006/token/generar', json=payload)
+            data = requests.post(f'{URL_MS_TOKEN}/token/generar', json=payload)
 
             token = data['token']
 

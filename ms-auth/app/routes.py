@@ -1,5 +1,5 @@
 from flask import Blueprint, jsonify
-from .controller.auth_controller import AuthController
+from .controllers.auth_controller import AuthController
 
 main = Blueprint('main', __name__)
 auth_controller = AuthController()

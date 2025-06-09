@@ -11,6 +11,7 @@ load_dotenv(dotenv_path)
 
 WEBPAY = os.getenv('WEBPAY')
 RETORNO = os.getenv('RETORNO')
+URL_MS_VENTA = os.getenv('URL_MS_VENTA')
 KEY_ID = os.getenv('KEY_ID')
 KEY_SECRET = os.getenv('KEY_SECRET')
 
@@ -26,7 +27,7 @@ class PagoController:
         datos = request.get_json()
         venta = datos['venta']
         
-        response = requests.get(f'http://127.0.0.1:5001/venta/{venta}')
+        response = requests.get(f'{URL_MS_VENTA}/venta/{venta}')
 
         if response.status_code == 200:
             data = response.json()
@@ -34,12 +35,12 @@ class PagoController:
             cliente = data['cliente']
             estado = data['EstadoVenta']
         else:
-            return jsonify({'mensaje':'error llamando al servicio'}), 400
+            return jsonify({'mensaje':'error llamando al servicio', 'url':URL_MS_VENTA}), 400
 
         if not monto_venta:
             return jsonify({'mensaje':f'No se ha encontrado la venta {venta}'}), 404
         
-        if estado is not "Pendiente":
+        if not estado == "Pendiente pago":
             return jsonify({'mensaje':'Venta ya se encuentra pagada'}), 418
         
         buy_order = f'venta{venta}id{int(time.time())}'
@@ -90,10 +91,9 @@ class PagoController:
         
         if data['status'] == 'AUTHORIZED':
             payload = {
-                'estado':'Pagado'
+                'estado':'Pendiente despacho'
             }
-            requests.put(f'http://127.0.0.1:5001/venta/{venta}', json=payload)
-            
+            requests.put(f'{URL_MS_VENTA}/venta/{venta}', json=payload)
 
         return data
 

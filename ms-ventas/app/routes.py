@@ -14,14 +14,14 @@ def ingresar_venta():
 @main.route('/venta', methods=['GET'])
 def ver_ventas():
     try:
-        return venta_controller.listar_ventas()
+        return venta_controller.listar_ventas(), 200
     except Exception as e:
         return jsonify({'mensaje': 'Error obteniendo ventas', 'error': str(e)}), 400     
     
 @main.route('/venta/<int:id>', methods=['GET'])
 def ver_venta(id):
     try:
-        return venta_controller.ver_venta(id)
+        return venta_controller.ver_venta(id), 200
     except Exception as e:
         return jsonify({'mensaje': 'Error obteniendo venta', 'error': str(e)}), 400      
 

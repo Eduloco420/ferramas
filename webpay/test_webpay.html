@@ -17,14 +17,11 @@
                     headers: {
                         'Content-Type': 'application/json'
                     },
-                    body: JSON.stringify({ venta: 1 })
+                    body: JSON.stringify({ venta: 10 })
                 });
 
-                if (response.status !== 200) {
-                    throw new Error("Error al contactar el backend: " + response.Mensaje);
-                }
-
                 const data = await response.json();
+                console.log(data)
                 const token = data.token;
                 const url = data.url;
 

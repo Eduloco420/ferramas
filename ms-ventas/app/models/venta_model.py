@@ -35,7 +35,7 @@ class VentaModel:
         return venta
     
     def ingresar(self, cursor, cliente, valor_total):
-        sql = "INSERT INTO ventas (cliente, fecVenta, valorVenta, estadoVenta) VALUES (%s, now(), %s, 'Pendiente')"
+        sql = "INSERT INTO ventas (cliente, fecVenta, valorVenta, estadoVenta) VALUES (%s, now(), %s, 'Pendiente pago')"
         cursor.execute(sql, (cliente, valor_total))
 
         venta_id = cursor.lastrowid

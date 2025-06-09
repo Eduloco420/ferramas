@@ -15,5 +15,6 @@ MarkupSafe==3.0.2
 mysqlclient==2.2.7
 python-dotenv==1.1.0
 requests==2.32.3
+rut-chile==2.0.1
 urllib3==2.4.0
 Werkzeug==3.1.3
