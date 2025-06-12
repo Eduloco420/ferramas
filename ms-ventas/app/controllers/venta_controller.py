@@ -1,4 +1,4 @@
-from flask import jsonify, request
+from flask import jsonify, request, make_response
 from app.models.venta_model import VentaModel
 from app import mysql
 import requests
@@ -10,6 +10,7 @@ load_dotenv(dotenv_path)
 
 URL_MS_PRODUCTO = os.getenv('URL_MS_PRODUCTO')
 URL_MS_DESPACHO = os.getenv('URL_MS_DESPACHO')
+URL_MS_TOKEN = os.getenv('URL_MS_TOKEN')
 
 class VentaController:
     def __init__(self):
@@ -21,18 +22,43 @@ class VentaController:
     
     def ver_venta(self, id):
         venta = self.modelo.obtener_venta(id)
-        return venta
+        if venta is None:
+            return make_response(jsonify({'mensaje': 'No se ha encontrado la venta'}), 404)
+        return make_response(jsonify(venta), 200)
+
     
     def agregar_venta(self):
         datos = request.get_json()
-        cliente = datos.get('cliente')
         productos = datos.get('productos')
         despacho = datos.get('despacho')
         direccion = despacho.get('direccion')
         comuna = despacho.get('comuna')
 
-        if not all([cliente, productos, direccion, comuna is not None]):
+        if not all([productos, direccion, comuna is not None]):
             return jsonify({'error': 'Faltan datos obligatorios'}), 400
+        
+        try:
+            token = request.headers.get('Authorization')
+
+            if not token:
+                return jsonify({'mensaje': 'Token no proporcionado en la petición'}), 401
+            
+            response = requests.post(f'{URL_MS_TOKEN}/token/validar', headers={'Authorization':token})
+            
+            if response.status_code != 200:
+                return jsonify({
+                    'mensaje': 'Error validando al usuario, favor volver a intentar',
+                    'detalle': response.text
+                }), 401
+
+            token_data = response.json()
+            payload = token_data['payload']
+            cliente = payload['id']
+
+        except Exception as e:
+            return jsonify({'mensaje':'Error validando al usuario, favor volver a intentar', 'Error':str(e)}), 401
+        
+  
 
         detalle_productos = []
         valor_total = 0
@@ -86,7 +112,11 @@ class VentaController:
             despacho = requests.post(f'{URL_MS_DESPACHO}/despacho', json=payload)
             despacho = despacho.json()
 
-            return jsonify({'mensaje':'Se a ingresado correctamente la venta', 'venta_id':venta_id, 'detalle':detalle_productos, 'despacho': despacho})
+            return jsonify({'mensaje':'Se a ingresado correctamente la venta', 
+                            'venta_id':venta_id, 
+                            'detalle':detalle_productos, 
+                            'despacho': despacho,
+                            'cliente':cliente})
 
         except Exception as e:
             connection.rollback()

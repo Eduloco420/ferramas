@@ -10,10 +10,23 @@ class imgModel:
 
         return imagenes
     
-    def cargar_img(self, id, nomArchivo):
+    def cargar_img(self, id, archivos):
         cursor = mysql.connection.cursor()
+        mysql.connection.begin()
         sql = "INSERT INTO imagenes (producto, nomArchivo) VALUES (%s, %s)"
-        cursor.execute(sql, (id, nomArchivo))
-        cursor.close()
 
+        try:
+            for a in archivos:
+                cursor.execute(sql, (id, a))
+            
+
+            mysql.connection.commit()
+        except Exception as e:
+            mysql.connection.rollback()
+            print(str(e))
+            return 0
+
+        cant = cursor.rowcount
+        cursor.close()
         
+        return cant

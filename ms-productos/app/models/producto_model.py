@@ -1,4 +1,5 @@
 from app import mysql
+import math
 
 class ProductoModel:
     def obtener_todos(self):
@@ -27,6 +28,9 @@ class ProductoModel:
         datos = cursor.fetchone()
         cursor.close()
 
+        if datos is None:
+            return None
+        
         producto = {
             'id':datos[0],
             'nombre':datos[1],
@@ -55,7 +59,10 @@ class ProductoModel:
         valores = (nombre, marca, codigo, precio)
         cursor.execute(sql, valores)
         mysql.connection.commit()
+        producto_id = cursor.lastrowid
         cursor.close()
+
+        return producto_id
 
     def modificar(self, id, nombre, marca, codigo, precio, vigente):
         cursor = mysql.connection.cursor()
@@ -64,3 +71,29 @@ class ProductoModel:
         cursor.execute(sql, valores)
         mysql.connection.commit()
         cursor.close()
+
+    def cant_productos(self, search):
+        cursor = mysql.connection.cursor()
+        cursor.execute("SELECT count(id) FROM producto WHERE LOWER(nombre) like %s", (f'%{search}%', ))
+        total_prod = cursor.fetchone()[0]
+        return total_prod
+
+    def buscar_productos(self, search, cant_prod, offset):
+        cursor = mysql.connection.cursor()        
+        sql = "SELECT * FROM producto WHERE LOWER(nombre) like %s LIMIT %s OFFSET %s"
+        cursor.execute(sql, (f'%{search}%', cant_prod, offset))
+        datos = cursor.fetchall()
+
+        productos = []
+        for d in datos:
+            productos.append({
+                'id':d[0],
+                'nombre':d[1],
+                'marca':d[2],
+                'codigo':d[3],
+                'precio':d[4],
+                'vigente':d[5]
+            })
+            
+        return productos
+        

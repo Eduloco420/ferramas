@@ -21,7 +21,7 @@ def ver_ventas():
 @main.route('/venta/<int:id>', methods=['GET'])
 def ver_venta(id):
     try:
-        return venta_controller.ver_venta(id), 200
+        return venta_controller.ver_venta(id)
     except Exception as e:
         return jsonify({'mensaje': 'Error obteniendo venta', 'error': str(e)}), 400      
 

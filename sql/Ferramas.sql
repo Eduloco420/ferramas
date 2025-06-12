@@ -4,8 +4,8 @@ USE ferramas;
 
 CREATE TABLE `user` (
   `id` int AUTO_INCREMENT PRIMARY KEY,
-  `mail` varchar(30),
-  `rut` varchar(10),
+  `mail` varchar(30) unique,
+  `rut` varchar(10) unique,
   `nombre` varchar(20),
   `apellido` varchar(20),
   `password` varchar(255),

@@ -56,14 +56,14 @@ class PagoController:
         headers = {
             'Content-Type': 'application/json',
             'Tbk-Api-Key-Id': KEY_ID,
-            'Tbk-Api-Key-Secret': KEY_SECRET 
+            'Tbk-Api-Key-Secret': KEY_SECRET
         }
 
         response = requests.post(url=f'{WEBPAY}/rswebpaytransaction/api/webpay/v1.2/transactions', json=payload, headers=headers)
 
         data = response.json()
 
-        self.modelo.ingresar_pago(venta=venta, montoPago=monto_venta, token=data['token'])                        
+        self.modelo.ingresar_pago(venta=venta, montoPago=monto_venta, token=data['token'])
 
         return data
     

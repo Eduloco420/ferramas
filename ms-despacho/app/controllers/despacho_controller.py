@@ -7,7 +7,13 @@ class DespachoController:
 
     def listar_despachos(self):
         despachos = self.modelo.obtener_todos()
-        return despachos        
+        return despachos
+    
+    def ver_despacho(self, id):
+        despacho = self.modelo.ver_despacho(id)
+        if despacho is None:
+            return jsonify({'mensaje':'No se encontraron datos'}), 404
+        return despacho
     
     def ingresar_despacho(self):
         datos = request.get_json()

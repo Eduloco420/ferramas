@@ -24,11 +24,34 @@ class imgController:
         return archivos
     
     def cargar_img(self):
-        images = request.files.getlist('img')
+        images = request.files.getlist('images')
         producto_id = request.form.get('id')
 
-        for img in images:
-            if img.filename != '':
-                ext = os.path.splitext(img.filename)[1]
-                nombreArchivo = f"{producto_id}_{uuid.uuid4().hex}{ext}"
-                ruta = os.path.join(app.config['UPLOAD_FOLDER'], nombreArchivo)
+        archivos = []
+
+        try:
+            for img in images:
+                if img.filename != '':
+                    ext = os.path.splitext(img.filename)[1]
+                    nombreArchivo = f"{producto_id}_{uuid.uuid4().hex}{ext}"
+                    ruta = os.path.join(self.image_folder, nombreArchivo)
+                    img.save(ruta)
+                    archivos.append(nombreArchivo)
+
+            cambios = self.modelo.cargar_img(producto_id, archivos)
+
+            if cambios == 0 or cambios is None:
+                for archivo in archivos:
+                    ruta = os.path.join(self.image_folder, archivo)
+                    if os.path.exists(ruta):
+                        os.remove(ruta)
+                return jsonify({'mensaje': 'Error cargando datos'})
+
+            return jsonify({'mensaje': 'Archivos cargados', 'archivos': archivos})
+
+        except Exception as e:
+            for archivo in archivos:
+                ruta = os.path.join(self.image_folder, archivo)
+                if os.path.exists(ruta):
+                    os.remove(ruta)
+            return jsonify({'mensaje': 'Error inesperado durante la carga'}), 500

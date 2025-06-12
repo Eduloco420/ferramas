@@ -14,6 +14,7 @@ class tokenController:
         data = request.get_json()
         mail = data['mail']
         rol = data['rol']
+        id = data['id']
 
         if not mail or not rol:
             return jsonify({'mensaje':'Faltan datos obligatorios'}), 400
@@ -21,6 +22,7 @@ class tokenController:
         payload = {
             'mail': mail,
             'rol': rol,
+            'id': id,
             'exp': datetime.datetime.utcnow() + datetime.timedelta(hours=5)
         }
 
@@ -29,7 +31,8 @@ class tokenController:
         return jsonify({'token':token}), 200
     
     def validar_token(self):
-        token = request.headers['Authorization']
+        token = request.headers.get('Authorization')
+        print(token)
 
         if not token:
             return jsonify({"mensaje": "Token no proporcionado"}), 400

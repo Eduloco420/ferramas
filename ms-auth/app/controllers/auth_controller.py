@@ -24,6 +24,8 @@ class AuthController:
 
             usuario = self.modelo.obtener_usuario(mail)
 
+            print(usuario)
+
             if not usuario:
                 return jsonify({'mensaje':'Usuario no encontrado'}),404
             
@@ -33,13 +35,21 @@ class AuthController:
             payload = {
                 'mail': usuario['mail'],
                 'rol': usuario['rol'],
+                'id': usuario['id']
             }
 
-            data = requests.post(f'{URL_MS_TOKEN}/token/generar', json=payload)
+            response = requests.post(f'{URL_MS_TOKEN}/token/generar', json=payload)
 
-            token = data['token']
+            print('Status Code:', response.status_code)
+            print('Response Text:', response.text)  
 
-            return token
+            if response.status_code != 200:
+                return jsonify({'mensaje': 'Error al generar el token', 'detalle': response.text}), 500
+
+            token_data = response.json()
+            token = token_data.get('token')
+
+            return jsonify({'token': token}), 200
 
         except Exception as e:
             return jsonify({'mensaje':'Ha ocurrido un error durante el inicio de sesión', 'Error':str(e)}), 400

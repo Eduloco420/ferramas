@@ -11,3 +11,7 @@ def ver_imagen(filename):
 @main.route('/img/producto/<int:id>', methods=['GET'])
 def imagenes_producto(id):
     return img_controller.imagenes_producto(id)
+
+@main.route('/img/cargar', methods=['POST'])
+def cargar_imagen():
+    return img_controller.cargar_img()

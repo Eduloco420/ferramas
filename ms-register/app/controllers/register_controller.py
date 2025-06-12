@@ -66,7 +66,7 @@ class registerController:
                 'cuerpo':cuerpo
             }
 
-            requests.post('{URL_MS_MAIL}/mail', json=mail)
+            requests.post(f'{URL_MS_MAIL}/mail', json=mail)
 
             return jsonify({'mensaje':'Usuario creado con exito', 'id':user_id}), 200
         except Exception as e:
