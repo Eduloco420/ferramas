@@ -2,12 +2,14 @@ from flask import Flask, render_template, jsonify, request, session, redirect, u
 
 
 import requests
+import os
 
 app = Flask(__name__)
 app.secret_key = 'tu_clave_secreta_aqui'
 
 # Orquestador
-ORQUESTADOR_URL = "http://127.0.0.1:5009"
+URL_MS_ORCHESTRATOR = os.getenv("URL_MS_ORCHESTRATOR", "http://127.0.0.1:5009")
+
 
 @app.route('/')
 def home():
@@ -22,7 +24,7 @@ def login():
             "password": request.form.get("password")
         }
         try:
-            r = requests.post(f"{ORQUESTADOR_URL}/login", json=datos)
+            r = requests.post(f"{URL_MS_ORCHESTRATOR}/login", json=datos)
             if r.status_code == 200:
                 session['token'] = r.json().get("token")
                 return render_template("login.html", mensaje="✅ Inicio de sesión exitoso.")
@@ -32,7 +34,7 @@ def login():
             mensaje = f"Error al conectar con el orquestador: {str(e)}"
     return render_template("login.html", mensaje=mensaje)
 
-@app.route('/register', methods=['GET', 'POST'])
+@app.route('/register', methods=['GET', 'POST']) 
 def registro():
     if request.method == 'POST':
         rol_str = request.form.get('rol')
@@ -50,12 +52,23 @@ def registro():
                 "rol": int(rol_str)
             }
 
-            r = requests.post(f"{ORQUESTADOR_URL}/register", json=datos)
+            r = requests.post(f"{URL_MS_ORCHESTRATOR}/register", json=datos)
+            print(f"Orquestador response status: {r.status_code}")
+            print(f"Orquestador response body: {r.text}")
 
-            if r.status_code == 201:
-                return render_template("login.html", mensaje="✅ Registro exitoso. Inicia sesión.")
-            else:
-                return render_template("register.html", mensaje="❌ Error al registrar. Intenta de nuevo.")
+            try:
+                respuesta = r.json()
+                mensaje_respuesta = respuesta.get("mensaje", "").lower()
+
+                if "éxito" in mensaje_respuesta or "exito" in mensaje_respuesta:
+                    # Mostrar mensaje en la misma página de registro
+                    mensaje = "✅ ¡Usuario creado con éxito! 😄🎉"
+                    return render_template("register.html", mensaje=mensaje, mostrar_boton_login=True)
+
+            except ValueError:
+                pass  # Respuesta no fue JSON
+
+            return render_template("register.html", mensaje=f"❌ Error al registrar. Código {r.status_code}: {r.text}")
 
         except Exception as e:
             return render_template("register.html", mensaje=f"❌ Error del servidor: {e}")
@@ -63,10 +76,11 @@ def registro():
     return render_template("register.html")
 
 
+
 @app.route('/productos')
 def productos():
     try:
-        r = requests.get(f"{ORQUESTADOR_URL}/productos/obtener")
+        r = requests.get(f"{URL_MS_ORCHESTRATOR}/productos/obtener")
         r.raise_for_status()
         productos = r.json()
         imagenes = {
@@ -94,7 +108,7 @@ def productos():
 @app.route('/producto/<int:producto_id>')
 def producto_detalle(producto_id):
     try:
-        r = requests.get(f"{ORQUESTADOR_URL}/productos/obtener/{producto_id}")
+        r = requests.get(f"{URL_MS_ORCHESTRATOR}/productos/obtener/{producto_id}")
         if r.status_code == 200:
             producto = r.json()
             # Diccionario con IDs como enteros (no cadenas)
@@ -121,7 +135,7 @@ def producto_detalle(producto_id):
 @app.route('/categoria/<string:nombre_categoria>')
 def productos_por_categoria(nombre_categoria):
     try:
-        r = requests.get(f"{ORQUESTADOR_URL}/productos/categoria/{nombre_categoria}")
+        r = requests.get(f"{URL_MS_ORCHESTRATOR}/productos/categoria/{nombre_categoria}")
         if r.status_code == 200:
             productos = r.json()
             imagenes = {
@@ -172,7 +186,7 @@ def mostrar_carrito():
 
     # Obtener comunas desde el backend (orquestador)
     try:
-        r_comunas = requests.get(f"{ORQUESTADOR_URL}/comunas/obtener")
+        r_comunas = requests.get(f"{URL_MS_ORCHESTRATOR}/comunas/obtener")
         r_comunas.raise_for_status()
         comunas = r_comunas.json()
     except Exception as e:
@@ -190,7 +204,7 @@ def mostrar_carrito():
         return render_template('carrito.html', carrito=[], total_carrito=0, mensaje="El carrito está vacío.", comunas=comunas)
 
     try:
-        r = requests.get(f"{ORQUESTADOR_URL}/productos/obtener")
+        r = requests.get(f"{URL_MS_ORCHESTRATOR}/productos/obtener")
         r.raise_for_status()
         productos = r.json()
 
@@ -284,7 +298,7 @@ def cambiar_cantidad():
 @app.route('/ventas')
 def ventas_list():
     try:
-        r = requests.get(f"{ORQUESTADOR_URL}/ventas")
+        r = requests.get(f"{URL_MS_ORCHESTRATOR}/ventas")
         return jsonify(r.json())
     except Exception as e:
         return jsonify({"error": str(e)}), 500
@@ -293,7 +307,7 @@ def ventas_list():
 def procesar_pago():
     datos = request.json
     try:
-        r = requests.post(f"{ORQUESTADOR_URL}/pago", json=datos)
+        r = requests.post(f"{URL_MS_ORCHESTRATOR}/pago", json=datos)
         return jsonify(r.json()), r.status_code
     except Exception as e:
         return jsonify({"error": str(e)}), 500
@@ -302,7 +316,7 @@ def procesar_pago():
 def enviar_correo():
     datos = request.json
     try:
-        r = requests.post(f"{ORQUESTADOR_URL}/mail", json=datos)
+        r = requests.post(f"{URL_MS_ORCHESTRATOR}/mail", json=datos)
         return jsonify(r.json()), r.status_code
     except Exception as e:
         return jsonify({"error": str(e)}), 500
@@ -311,7 +325,7 @@ def enviar_correo():
 def verificar_token():
     datos = request.json
     try:
-        r = requests.post(f"{ORQUESTADOR_URL}/token/verificar", json=datos)
+        r = requests.post(f"{URL_MS_ORCHESTRATOR}/token/verificar", json=datos)
         return jsonify(r.json()), r.status_code
     except Exception as e:
         return jsonify({"error": str(e)}), 500
@@ -320,7 +334,7 @@ def verificar_token():
 def generar_token():
     datos = request.json
     try:
-        r = requests.post(f"{ORQUESTADOR_URL}/token/generar", json=datos)
+        r = requests.post(f"{URL_MS_ORCHESTRATOR}/token/generar", json=datos)
         return jsonify(r.json()), r.status_code
     except Exception as e:
         return jsonify({"error": str(e)}), 500

@@ -3,19 +3,41 @@
 {% block title %}Iniciar Sesión | Ferremas{% endblock %}
 
 {% block content %}
-<h2 class="mb-4">Iniciar sesión</h2>
+<div class="row justify-content-center">
+  <div class="col-md-6">
+    <div class="card shadow-lg rounded-4 p-4">
+      <h2 class="mb-4 text-center text-success">Iniciar sesión</h2>
 
-<form action="/login" method="post" class="row g-3">
-  <div class="col-md-6">
-    <label for="correo" class="form-label">Correo electrónico</label>
-    <input type="email" class="form-control" id="correo" name="correo" required>
+      <!-- Mostrar mensajes flash -->
+      {% with messages = get_flashed_messages() %}
+        {% if messages %}
+          {% for message in messages %}
+            <div class="alert alert-success alert-dismissible fade show" role="alert">
+              {{ message }}
+              <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Cerrar"></button>
+            </div>
+          {% endfor %}
+        {% endif %}
+      {% endwith %}
+
+      <form action="/login" method="post" class="row g-3">
+        <div class="col-12">
+          <label for="correo" class="form-label">Correo electrónico</label>
+          <input type="email" class="form-control" id="correo" name="correo" placeholder="ejemplo@correo.com" required>
+        </div>
+        <div class="col-12">
+          <label for="password" class="form-label">Contraseña</label>
+          <input type="password" class="form-control" id="password" name="password" placeholder="Tu contraseña" required>
+        </div>
+        <div class="col-12 text-center">
+          <button type="submit" class="btn btn-success w-100 mt-3">Entrar</button>
+        </div>
+      </form>
+
+      <div class="text-center mt-3">
+        <small>¿No tienes cuenta? <a href="/register" class="text-decoration-none">Regístrate aquí</a></small>
+      </div>
+    </div>
   </div>
-  <div class="col-md-6">
-    <label for="password" class="form-label">Contraseña</label>
-    <input type="password" class="form-control" id="password" name="password" required>
-  </div>
-  <div class="col-12">
-    <button type="submit" class="btn btn-success">Entrar</button>
-  </div>
-</form>
+</div>
 {% endblock %}
