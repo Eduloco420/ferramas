@@ -209,7 +209,52 @@ def registro():
 
     return render_template("register.html")
 
+@app.route('/trabajador/usuarios')
+@login_required(rol_permitido='2')
+def listar_usuarios():
+    try:
+        r = requests.get(f"{URL_MS_ORCHESTRATOR}/usuarios")
+        if r.status_code == 200:
+            usuarios = r.json()
+            return render_template('trabajador_usuarios.html', usuarios=usuarios)
+        else:
+            flash("Error al obtener los usuarios")
+            return redirect(url_for('dashboard_trabajador'))
+    except Exception as e:
+        flash(f"Error del servidor: {e}")
+        return redirect(url_for('dashboard_trabajador'))
 
+
+@app.route('/trabajador/compras')
+@login_required(rol_permitido='2')
+def listar_compras():
+    try:
+        r = requests.get(f"{{URL_MS_ORCHESTRATOR}}/ventas")
+        if r.status_code == 200:
+            compras = r.json()
+            return render_template('trabajador_compras.html', compras=compras)
+        else:
+            flash("Error al obtener las compras")
+            return redirect(url_for('dashboard_trabajador'))
+    except Exception as e:
+        flash(f"Error del servidor: {e}")
+        return redirect(url_for('dashboard_trabajador'))
+
+@app.route('/contacto', methods=['GET', 'POST'])
+def contacto():
+    if request.method == 'POST':
+        nombre = request.form.get('nombre')
+        correo = request.form.get('correo')
+        mensaje = request.form.get('mensaje')
+
+        if not nombre or not correo or not mensaje:
+            flash("Por favor completa todos los campos.")
+            return redirect(url_for('contacto'))
+
+        flash("Gracias por contactarte con nosotros, te responderemos a la brevedad.")
+        return redirect(url_for('contacto'))
+
+    return render_template('contacto.html')
 
 @app.route('/productos')
 def productos():
@@ -473,9 +518,7 @@ def generar_token():
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
-@app.route('/contacto')
-def contacto():
-    return render_template('contacto.html')
+
 
 
 if __name__ == '__main__':

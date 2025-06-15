@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+{% block title %}Usuarios Registrados | Ferremas{% endblock %}
+
+{% block content %}
+<h2>Lista de Usuarios</h2>
+
+{% if usuarios %}
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Correo</th>
+                <th>RUT</th>
+                <th>Nombre</th>
+                <th>Apellido</th>
+                <th>Rol</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for usuario in usuarios %}
+            <tr>
+                <td>{{ usuario.id }}</td>
+                <td>{{ usuario.mail }}</td>
+                <td>{{ usuario.rut }}</td>
+                <td>{{ usuario.nombre }}</td>
+                <td>{{ usuario.apellido }}</td>
+                <td>
+                    {% if usuario.rol == 1 %}
+                        Cliente
+                    {% elif usuario.rol == 2 %}
+                        Trabajador
+                    {% else %}
+                        Desconocido
+                    {% endif %}
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+{% else %}
+    <p>No se encontraron usuarios.</p>
+{% endif %}
+
+<a href="{{ url_for('dashboard_trabajador') }}" class="btn btn-secondary mt-3">Volver al Panel</a>
+{% endblock %}
