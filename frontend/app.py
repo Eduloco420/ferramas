@@ -8,48 +8,21 @@ import functools
 
 app = Flask(__name__)
 app.secret_key = 'tu_clave_secreta_aqui'
-JWT_SECRET = 'tu_clave_secreta_aqui' 
+
+JWT_SECRET = os.getenv('SECRET_KEY', 'tokenGen')
 
 
 # Orquestador
 URL_MS_ORCHESTRATOR = os.getenv("URL_MS_ORCHESTRATOR", "http://127.0.0.1:5009")
-
+URL_FRONTEND = os.getenv("URL_FRONTEND", "http://127.0.0.1:3000")
 
 @app.route('/')
 def home():
     return render_template('home.html')
 
-def login_required(rol_permitido=None):
-    def decorator(f):
-        @functools.wraps(f)
-        def wrapper(*args, **kwargs):
-            token = session.get('token')
-            if not token:
-                flash(" Debes iniciar sesión")
-                return redirect(url_for('login'))
-
-            try:
-                payload = jwt.decode(token, 'tu_clave_secreta_aqui', algorithms=['HS256'])
-                if rol_permitido and payload.get('rol') != rol_permitido:
-                    flash(" No tienes permisos para acceder a esta página")
-                    return redirect(url_for('login'))
-
-                session['usuario_id'] = payload.get('id')
-                session['usuario_rol'] = payload.get('rol')
-                session['usuario_nombre'] = payload.get('mail')
-
-            except jwt.ExpiredSignatureError:
-                flash(" Sesión expirada, por favor ingresa de nuevo")
-                session.clear()
-                return redirect(url_for('login'))
-            except jwt.InvalidTokenError:
-                flash(" Token inválido, inicia sesión nuevamente")
-                session.clear()
-                return redirect(url_for('login'))
-
-            return f(*args, **kwargs)
-        return wrapper
-    return decorator
+from flask import session, flash, redirect, url_for, render_template, request
+import functools
+import jwt
 
 @app.route('/auth/login', methods=['GET', 'POST'])
 def login():
@@ -73,23 +46,28 @@ def login():
                     flash('No se recibió token de autenticación')
                     return render_template('login.html')
 
-                # Decodificar token sin verificar firma para extraer payload
                 payload = jwt.decode(token, options={"verify_signature": False})
 
                 session['usuario_id'] = payload.get('id')
                 session['usuario_nombre'] = payload.get('mail')
-                session['usuario_rol'] = int(payload.get('rol'))  # int para comparación
+                session['usuario_rol'] = str(payload.get('rol'))
                 session['token'] = token
+
+                print("SESION DESPUES LOGIN:", dict(session))  # Debug
 
                 flash(f"Bienvenido, {session['usuario_nombre']}")
 
-                # Redirigir según rol
-                if session['usuario_rol'] == 1:
-                    return redirect(url_for('dashboard_cliente'))
-                elif session['usuario_rol'] == 2:
-                    return redirect(url_for('dashboard_trabajador'))
+                # Determinar la URL de redirección
+                if session['usuario_rol'] == '1':
+                    destino = url_for('dashboard_cliente')
+                elif session['usuario_rol'] == '2':
+                    destino = url_for('dashboard_trabajador')
                 else:
-                    return redirect(url_for('dashboard_general'))
+                    destino = url_for('dashboard_general')
+
+                print(f"Redirigiendo a: {destino}")  # Debug
+
+                return redirect(destino)  # IMPORTANTE: return aquí
 
             else:
                 flash(f"Error del servidor: código {r.status_code}")
@@ -99,10 +77,7 @@ def login():
             flash(f"Error al conectar con el servidor: {e}")
             return render_template('login.html')
 
-    # GET: mostrar formulario
     return render_template('login.html')
-
-
 
 def login_required(rol_permitido=None):
     def decorator(f):
@@ -114,14 +89,15 @@ def login_required(rol_permitido=None):
                 return redirect(url_for('login'))
 
             try:
-                payload = jwt.decode(token, JWT_SECRET, algorithms=['HS256'])
+                payload = jwt.decode(token, JWT_SECRET, algorithms=['HS256'])  # ✅ FIX AQUÍ
+                rol_actual = str(payload.get('rol'))
 
-                if rol_permitido and payload.get('rol') != rol_permitido:
+                if rol_permitido and rol_actual != str(rol_permitido):
                     flash(" No tienes permisos para acceder a esta página")
                     return redirect(url_for('login'))
 
                 session['usuario_id'] = payload.get('id')
-                session['usuario_rol'] = payload.get('rol')
+                session['usuario_rol'] = rol_actual
                 session['usuario_nombre'] = payload.get('mail')
 
             except jwt.ExpiredSignatureError:
@@ -137,15 +113,18 @@ def login_required(rol_permitido=None):
         return wrapper
     return decorator
 
+
 @app.route('/dashboard_cliente')
-@login_required(rol_permitido=1)
+@login_required(rol_permitido='1')
 def dashboard_cliente():
     return render_template('dashboard_cliente.html')
 
+
 @app.route('/dashboard_trabajador')
-@login_required(rol_permitido=2)
+@login_required(rol_permitido='2')
 def dashboard_trabajador():
     return render_template('dashboard_trabajador.html')
+
 
 @app.route('/dashboard_general')
 @login_required()
@@ -159,6 +138,8 @@ def logout():
     flash("Has cerrado sesión.")
     return redirect(url_for('login'))
 
+
+
 @app.route('/register', methods=['GET', 'POST']) 
 def registro():
     if request.method == 'POST':
@@ -167,16 +148,16 @@ def registro():
         if not rol_str:
             return render_template("register.html", mensaje=" Debes seleccionar un rol.")
 
-        try:
-            datos = {
-                "nombre": request.form.get('nombre'),
-                "apellido": request.form.get('apellido'),
-                "rut": request.form.get('rut'),
-                "mail": request.form.get('mail'),
-                "password": request.form.get('password'),
-                "rol": int(rol_str)
-            }
+        datos = {
+            "nombre": request.form.get('nombre'),
+            "apellido": request.form.get('apellido'),
+            "rut": request.form.get('rut'),
+            "mail": request.form.get('mail'),
+            "password": request.form.get('password'),
+            "rol": int(rol_str)
+        }
 
+        try:
             r = requests.post(f"{URL_MS_ORCHESTRATOR}/register", json=datos)
             print(f"Orquestador response status: {r.status_code}")
             print(f"Orquestador response body: {r.text}")
@@ -186,7 +167,35 @@ def registro():
                 mensaje_respuesta = respuesta.get("mensaje", "").lower()
 
                 if "éxito" in mensaje_respuesta or "exito" in mensaje_respuesta:
-                    # Mostrar mensaje en la misma página de registro
+                    # Enviar correo vía MS Orquestador con contenido HTML
+                    try:
+                        datos_correo = {
+                            "para": datos["mail"],
+                            "asunto": "¡Bienvenido a Ferremas!",
+                            "contenido": f"""
+                            <html>
+                                <body>
+                                    <p>Hola {datos['nombre']} {datos['apellido']},</p>
+                                    <p>Gracias por registrarte en <strong>Ferremas</strong>. Estamos encantados de tenerte con nosotros.</p>
+                                    <p>Ahora puedes disfrutar de todas nuestras funcionalidades.</p>
+                                    <p>
+                                        <a href="{URL_FRONTEND}/auth/login"" 
+                                           style="background-color: #dc3545; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px;">
+                                            Iniciar sesión
+                                        </a>
+                                    </p>
+                                    <p>¡Gracias por unirte!</p>
+                                    <p>El equipo de Ferremas</p>
+                                </body>
+                            </html>
+                            """
+                        }
+                        correo_resp = requests.post(f"{URL_MS_ORCHESTRATOR}/notificaciones/correo", json=datos_correo)
+                        if correo_resp.status_code != 200:
+                            print("Error al enviar el correo:", correo_resp.text)
+                    except Exception as e:
+                        print("Excepción al enviar correo:", e)
+
                     mensaje = "✅ ¡Usuario creado con éxito! 😄🎉"
                     return render_template("register.html", mensaje=mensaje, mostrar_boton_login=True)
 
