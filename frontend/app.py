@@ -1,11 +1,15 @@
-from flask import Flask, render_template, jsonify, request, session, redirect, url_for
-
-
+from flask import Flask, render_template, jsonify, request, session, redirect, url_for, flash
+import jwt
 import requests
 import os
+import functools
+
+
 
 app = Flask(__name__)
 app.secret_key = 'tu_clave_secreta_aqui'
+JWT_SECRET = 'tu_clave_secreta_aqui' 
+
 
 # Orquestador
 URL_MS_ORCHESTRATOR = os.getenv("URL_MS_ORCHESTRATOR", "http://127.0.0.1:5009")
@@ -15,24 +19,145 @@ URL_MS_ORCHESTRATOR = os.getenv("URL_MS_ORCHESTRATOR", "http://127.0.0.1:5009")
 def home():
     return render_template('home.html')
 
-@app.route('/login', methods=['GET', 'POST'])
+def login_required(rol_permitido=None):
+    def decorator(f):
+        @functools.wraps(f)
+        def wrapper(*args, **kwargs):
+            token = session.get('token')
+            if not token:
+                flash(" Debes iniciar sesión")
+                return redirect(url_for('login'))
+
+            try:
+                payload = jwt.decode(token, 'tu_clave_secreta_aqui', algorithms=['HS256'])
+                if rol_permitido and payload.get('rol') != rol_permitido:
+                    flash(" No tienes permisos para acceder a esta página")
+                    return redirect(url_for('login'))
+
+                session['usuario_id'] = payload.get('id')
+                session['usuario_rol'] = payload.get('rol')
+                session['usuario_nombre'] = payload.get('mail')
+
+            except jwt.ExpiredSignatureError:
+                flash(" Sesión expirada, por favor ingresa de nuevo")
+                session.clear()
+                return redirect(url_for('login'))
+            except jwt.InvalidTokenError:
+                flash(" Token inválido, inicia sesión nuevamente")
+                session.clear()
+                return redirect(url_for('login'))
+
+            return f(*args, **kwargs)
+        return wrapper
+    return decorator
+
+@app.route('/auth/login', methods=['GET', 'POST'])
 def login():
-    mensaje = None
     if request.method == 'POST':
-        datos = {
-            "correo": request.form.get("correo"),
-            "password": request.form.get("password")
-        }
+        correo = request.form.get('correo')
+        password = request.form.get('password')
+
+        if not correo or not password:
+            flash('Debes ingresar correo y contraseña')
+            return render_template('login.html')
+
+        datos = {"mail": correo, "password": password}
+
         try:
-            r = requests.post(f"{URL_MS_ORCHESTRATOR}/login", json=datos)
+            r = requests.post(f"{URL_MS_ORCHESTRATOR}/auth/login", json=datos)
             if r.status_code == 200:
-                session['token'] = r.json().get("token")
-                return render_template("login.html", mensaje="✅ Inicio de sesión exitoso.")
+                respuesta = r.json()
+                token = respuesta.get('token')
+
+                if not token:
+                    flash('No se recibió token de autenticación')
+                    return render_template('login.html')
+
+                # Decodificar token sin verificar firma para extraer payload
+                payload = jwt.decode(token, options={"verify_signature": False})
+
+                session['usuario_id'] = payload.get('id')
+                session['usuario_nombre'] = payload.get('mail')
+                session['usuario_rol'] = int(payload.get('rol'))  # int para comparación
+                session['token'] = token
+
+                flash(f"Bienvenido, {session['usuario_nombre']}")
+
+                # Redirigir según rol
+                if session['usuario_rol'] == 1:
+                    return redirect(url_for('dashboard_cliente'))
+                elif session['usuario_rol'] == 2:
+                    return redirect(url_for('dashboard_trabajador'))
+                else:
+                    return redirect(url_for('dashboard_general'))
+
             else:
-                mensaje = r.json().get("mensaje", "Error al iniciar sesión.")
+                flash(f"Error del servidor: código {r.status_code}")
+                return render_template('login.html')
+
         except Exception as e:
-            mensaje = f"Error al conectar con el orquestador: {str(e)}"
-    return render_template("login.html", mensaje=mensaje)
+            flash(f"Error al conectar con el servidor: {e}")
+            return render_template('login.html')
+
+    # GET: mostrar formulario
+    return render_template('login.html')
+
+
+
+def login_required(rol_permitido=None):
+    def decorator(f):
+        @functools.wraps(f)
+        def wrapper(*args, **kwargs):
+            token = session.get('token')
+            if not token:
+                flash(" Debes iniciar sesión")
+                return redirect(url_for('login'))
+
+            try:
+                payload = jwt.decode(token, JWT_SECRET, algorithms=['HS256'])
+
+                if rol_permitido and payload.get('rol') != rol_permitido:
+                    flash(" No tienes permisos para acceder a esta página")
+                    return redirect(url_for('login'))
+
+                session['usuario_id'] = payload.get('id')
+                session['usuario_rol'] = payload.get('rol')
+                session['usuario_nombre'] = payload.get('mail')
+
+            except jwt.ExpiredSignatureError:
+                flash(" Sesión expirada, por favor ingresa de nuevo")
+                session.clear()
+                return redirect(url_for('login'))
+            except jwt.InvalidTokenError:
+                flash(" Token inválido, inicia sesión nuevamente")
+                session.clear()
+                return redirect(url_for('login'))
+
+            return f(*args, **kwargs)
+        return wrapper
+    return decorator
+
+@app.route('/dashboard_cliente')
+@login_required(rol_permitido=1)
+def dashboard_cliente():
+    return render_template('dashboard_cliente.html')
+
+@app.route('/dashboard_trabajador')
+@login_required(rol_permitido=2)
+def dashboard_trabajador():
+    return render_template('dashboard_trabajador.html')
+
+@app.route('/dashboard_general')
+@login_required()
+def dashboard_general():
+    return render_template('dashboard_general.html')
+
+
+@app.route('/logout')
+def logout():
+    session.clear()
+    flash("Has cerrado sesión.")
+    return redirect(url_for('login'))
 
 @app.route('/register', methods=['GET', 'POST']) 
 def registro():
@@ -40,7 +165,7 @@ def registro():
         rol_str = request.form.get('rol')
 
         if not rol_str:
-            return render_template("register.html", mensaje="⚠️ Debes seleccionar un rol.")
+            return render_template("register.html", mensaje=" Debes seleccionar un rol.")
 
         try:
             datos = {
@@ -68,10 +193,10 @@ def registro():
             except ValueError:
                 pass  # Respuesta no fue JSON
 
-            return render_template("register.html", mensaje=f"❌ Error al registrar. Código {r.status_code}: {r.text}")
+            return render_template("register.html", mensaje=f" Error al registrar. Código {r.status_code}: {r.text}")
 
         except Exception as e:
-            return render_template("register.html", mensaje=f"❌ Error del servidor: {e}")
+            return render_template("register.html", mensaje=f" Error del servidor: {e}")
 
     return render_template("register.html")
 

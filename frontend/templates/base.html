@@ -21,43 +21,65 @@
   </div>
 
   <!-- Navbar -->
-  <nav class="navbar navbar-expand-lg navbar-light bg-light shadow-sm mb-4">
-    <div class="container-fluid justify-content-center">
-      <div class="d-flex flex-wrap align-items-center gap-2">
-        
-        <form action="/" method="get">
-          <button class="btn btn-outline-primary">Inicio</button>
+  <!-- Navbar -->
+<nav class="navbar navbar-expand-lg navbar-light bg-light shadow-sm mb-4">
+  <div class="container-fluid justify-content-center">
+    <div class="d-flex flex-wrap align-items-center gap-2">
+
+      <form action="/" method="get">
+        <button class="btn btn-outline-primary">Inicio</button>
+      </form>
+
+      <form action="/productos" method="get">
+        <button class="btn btn-outline-primary">Productos</button>
+      </form>
+
+      <form action="/carrito" method="get">
+        <button class="btn btn-outline-primary">Carrito</button>
+      </form>
+
+      <form action="/contacto" method="get">
+        <button class="btn btn-outline-primary">Contacto</button>
+      </form>
+
+      {% if session.usuario_nombre %}
+        <!-- Usuario logueado -->
+        <span class="navbar-text mx-2">Hola, {{ session.usuario_nombre }}!</span>
+
+        {% if session.usuario_rol == 1 %}
+          <form action="/dashboard_cliente" method="get">
+            <button class="btn btn-outline-primary">Panel Cliente</button>
+          </form>
+        {% elif session.usuario_rol == 2 %}
+          <form action="/dashboard_trabajador" method="get">
+            <button class="btn btn-outline-primary">Panel Trabajador</button>
+          </form>
+        {% endif %}
+
+        <form action="/logout" method="get">
+          <button class="btn btn-outline-danger">Cerrar sesión</button>
         </form>
 
-        <form action="/productos" method="get">
-          <button class="btn btn-outline-primary">Productos</button>
-        </form>
-
-        <form action="/carrito" method="get">
-          <button class="btn btn-outline-primary">Carrito</button>
-        </form>
-
-        <form action="/contacto" method="get">
-          <button class="btn btn-outline-primary">Contacto</button>
-        </form>
-
+      {% else %}
+        <!-- Usuario NO logueado -->
         <form action="/register" method="get">
           <button class="btn btn-outline-primary">Registro</button>
         </form>
 
-        <form action="/login" method="get">
+        <form action="/auth/login" method="get">
           <button class="btn btn-outline-primary">Iniciar Sesión</button>
         </form>
+      {% endif %}
 
-        <!-- Buscador -->
-        <form class="d-flex navbar-search" role="search" action="/buscar" method="get">
-          <input class="form-control me-2" type="search" placeholder="Buscar..." name="query" aria-label="Buscar">
-          <button class="btn btn-outline-success" type="submit">Buscar</button>
-        </form>
+      <!-- Buscador -->
+      <form class="d-flex navbar-search" role="search" action="/buscar" method="get">
+        <input class="form-control me-2" type="search" placeholder="Buscar..." name="query" aria-label="Buscar">
+        <button class="btn btn-outline-success" type="submit">Buscar</button>
+      </form>
 
-      </div>
     </div>
-  </nav>
+  </div>
+</nav>
 
   <!-- Contenido dinámico -->
   <div class="container my-4">
