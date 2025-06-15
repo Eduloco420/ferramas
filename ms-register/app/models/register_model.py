@@ -13,6 +13,5 @@ class registerModel:
         cursor.execute(sql, (mail, rut, nombre, apellido, password, rol))
         cursor.connection.commit()
         user_id = cursor.lastrowid
-        cursor.close
-
+        cursor.close()  
         return user_id

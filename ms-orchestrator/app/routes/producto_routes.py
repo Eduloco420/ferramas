@@ -8,6 +8,7 @@ orchestrator_controller = OrchestratorController()
 def crear_producto():
     return orchestrator_controller.crear_producto()
 
+
 @producto_bp.route('/obtener', methods=['GET'])
 def obtener_productos():
     return orchestrator_controller.obtener_productos()

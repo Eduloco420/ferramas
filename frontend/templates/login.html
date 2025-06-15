@@ -1,33 +1,21 @@
 <!-- templates/login.html -->
 {% extends "base.html" %}
-
-{% block title %}Iniciar Sesión - Ferremas{% endblock %}
+{% block title %}Iniciar Sesión | Ferremas{% endblock %}
 
 {% block content %}
+<h2 class="mb-4">Iniciar sesión</h2>
 
-<div class="d-flex justify-content-center align-items-center" style="min-height: 60vh;">
-  <div class="card shadow p-4" style="width: 100%; max-width: 400px;">
-    <h3 class="text-center mb-4">Iniciar Sesión</h3>
-    <form method="POST" novalidate>
-      <div class="mb-3">
-        <label for="correo" class="form-label">Correo:</label>
-        <input type="email" class="form-control" name="correo" id="correo" required>
-      </div>
-      <div class="mb-3">
-        <label for="password" class="form-label">Contraseña:</label>
-        <input type="password" class="form-control" name="password" id="password" required>
-      </div>
-      {% if mensaje %}
-      <div class="alert alert-danger" role="alert">
-        {{ mensaje }}
-      </div>
-      {% endif %}
-      <button type="submit" class="btn btn-primary w-100">Ingresar</button>
-    </form>
-    <div class="text-center mt-3">
-      <a href="/" class="btn btn-secondary w-100">Volver al Inicio</a>
-    </div>
+<form action="/login" method="post" class="row g-3">
+  <div class="col-md-6">
+    <label for="correo" class="form-label">Correo electrónico</label>
+    <input type="email" class="form-control" id="correo" name="correo" required>
   </div>
-</div>
-
+  <div class="col-md-6">
+    <label for="password" class="form-label">Contraseña</label>
+    <input type="password" class="form-control" id="password" name="password" required>
+  </div>
+  <div class="col-12">
+    <button type="submit" class="btn btn-success">Entrar</button>
+  </div>
+</form>
 {% endblock %}

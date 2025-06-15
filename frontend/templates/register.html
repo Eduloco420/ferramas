@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+{% block title %}Registro | Ferremas{% endblock %}
+
+{% block content %}
+<h2 class="mb-4">Crear cuenta</h2>
+
+{% if mensaje %}
+<div class="alert alert-info">{{ mensaje }}</div>
+{% endif %}
+
+<form action="/register" method="post" class="row g-3">
+  <div class="col-md-6">
+    <label for="nombre" class="form-label">Nombre</label>
+    <input type="text" class="form-control" id="nombre" name="nombre" required>
+  </div>
+
+  <div class="col-md-6">
+    <label for="apellido" class="form-label">Apellido</label>
+    <input type="text" class="form-control" id="apellido" name="apellido" required>
+  </div>
+
+  <div class="col-md-6">
+    <label for="rut" class="form-label">RUT</label>
+    <input type="text" class="form-control" id="rut" name="rut" required>
+  </div>
+
+  <div class="col-md-6">
+    <label for="correo" class="form-label">Correo electrónico</label>
+    <input type="email" class="form-control" id="correo" name="mail" required>
+  </div>
+
+  <div class="col-md-6">
+    <label for="password" class="form-label">Contraseña</label>
+    <input type="password" class="form-control" id="password" name="password" required>
+  </div>
+
+  <div class="col-md-6">
+    <label for="rol" class="form-label">Rol</label>
+    <select class="form-select" id="rol" name="rol" required>
+      <option value="1">Cliente</option>
+      <option value="2">Trabajador</option>
+    </select>
+  </div>
+
+  <div class="col-12">
+    <button type="submit" class="btn btn-primary">Registrarse</button>
+  </div>
+</form>
+{% endblock %}

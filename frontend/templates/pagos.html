@@ -1,5 +1,32 @@
-<form method="POST" action="/pagos">
-  Venta ID: <input type="text" name="venta_id" /><br/>
-  Monto: <input type="number" name="monto" step="0.01" /><br/>
-  <button type="submit">Pagar</button>
+<!-- templates/pagos.html -->
+{% extends "base.html" %}
+{% block title %}Pago | Ferremas{% endblock %}
+
+{% block content %}
+<h2 class="mb-4">Resumen de Compra</h2>
+
+<table class="table">
+  <thead>
+    <tr>
+      <th>Producto</th>
+      <th>Cantidad</th>
+      <th>Subtotal</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for item in carrito %}
+    <tr>
+      <td>{{ item.nombre }}</td>
+      <td>{{ item.cantidad }}</td>
+      <td>${{ item.total }}</td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+
+<p class="fw-bold">Total: ${{ total }}</p>
+
+<form action="/procesar_pago" method="post">
+  <button type="submit" class="btn btn-success">Confirmar y Pagar</button>
 </form>
+{% endblock %}

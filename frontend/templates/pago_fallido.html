@@ -1,0 +1,11 @@
+<!-- templates/pago_fallido.html -->
+{% extends "base.html" %}
+{% block title %}Pago Fallido | Ferremas{% endblock %}
+
+{% block content %}
+<div class="alert alert-danger text-center">
+  <h4 class="alert-heading">¡Algo salió mal!</h4>
+  <p>No se pudo procesar tu pago. Por favor, intenta nuevamente.</p>
+  <a href="/carrito" class="btn btn-warning mt-3">Volver al carrito</a>
+</div>
+{% endblock %}
