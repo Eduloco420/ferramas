@@ -65,7 +65,7 @@ def login():
                 else:
                     destino = url_for('dashboard_general')
 
-                print(f"Redirigiendo a: {destino}")  # Debug
+                print(f"Redirigiendo a: {destino}")  
 
                 return redirect(destino)  # IMPORTANTE: return aquí
 
@@ -89,7 +89,7 @@ def login_required(rol_permitido=None):
                 return redirect(url_for('login'))
 
             try:
-                payload = jwt.decode(token, JWT_SECRET, algorithms=['HS256'])  # ✅ FIX AQUÍ
+                payload = jwt.decode(token, JWT_SECRET, algorithms=['HS256'])  
                 rol_actual = str(payload.get('rol'))
 
                 if rol_permitido and rol_actual != str(rol_permitido):
@@ -178,12 +178,6 @@ def registro():
                                     <p>Hola {datos['nombre']} {datos['apellido']},</p>
                                     <p>Gracias por registrarte en <strong>Ferremas</strong>. Estamos encantados de tenerte con nosotros.</p>
                                     <p>Ahora puedes disfrutar de todas nuestras funcionalidades.</p>
-                                    <p>
-                                        <a href="{URL_FRONTEND}/auth/login"" 
-                                           style="background-color: #dc3545; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px;">
-                                            Iniciar sesión
-                                        </a>
-                                    </p>
                                     <p>¡Gracias por unirte!</p>
                                     <p>El equipo de Ferremas</p>
                                 </body>
@@ -196,7 +190,7 @@ def registro():
                     except Exception as e:
                         print("Excepción al enviar correo:", e)
 
-                    mensaje = "✅ ¡Usuario creado con éxito! 😄🎉"
+                    mensaje = "¡Usuario creado con éxito! 😄"
                     return render_template("register.html", mensaje=mensaje, mostrar_boton_login=True)
 
             except ValueError:
@@ -209,17 +203,26 @@ def registro():
 
     return render_template("register.html")
 
+
 @app.route('/trabajador/usuarios')
 @login_required(rol_permitido='2')
 def listar_usuarios():
     try:
-        r = requests.get(f"{URL_MS_ORCHESTRATOR}/usuarios")
+        # Trae solo usuarios con rol 1 (clientes)
+        r = requests.get(f"{URL_MS_ORCHESTRATOR}/usuarios", params={"rol": "1"})
+        
         if r.status_code == 200:
             usuarios = r.json()
-            return render_template('trabajador_usuarios.html', usuarios=usuarios)
+            
+            if isinstance(usuarios, list):
+                return render_template('trabajador_usuarios.html', usuarios=usuarios)
+            else:
+                flash("La respuesta no tiene formato de lista.")
+                return redirect(url_for('dashboard_trabajador'))
         else:
-            flash("Error al obtener los usuarios")
+            flash("Error al obtener los usuarios.")
             return redirect(url_for('dashboard_trabajador'))
+
     except Exception as e:
         flash(f"Error del servidor: {e}")
         return redirect(url_for('dashboard_trabajador'))
@@ -290,7 +293,7 @@ def producto_detalle(producto_id):
         r = requests.get(f"{URL_MS_ORCHESTRATOR}/productos/obtener/{producto_id}")
         if r.status_code == 200:
             producto = r.json()
-            # Diccionario con IDs como enteros (no cadenas)
+           
             imagenes = {
                 1: "taladro.jpg",
                 2: "guanteseguri.jpg",
@@ -302,7 +305,7 @@ def producto_detalle(producto_id):
                 8: "pala.jpg",
                 9: "guante.png"
             }
-            # Asignar imagen usando el ID entero
+            # Asignar imagen usando el ID 
             producto['imagen'] = imagenes.get(producto.get("id"), "default.png")
             return render_template('producto_detalle.html', producto=producto)
         else:
@@ -341,7 +344,7 @@ def productos_por_categoria(nombre_categoria):
 @app.route('/agregar_carrito', methods=['POST'])
 def agregar_carrito():
     data = request.get_json()
-    producto_id = str(data.get('id'))  # siempre string para clave en session
+    producto_id = str(data.get('id')) 
 
     if not producto_id:
         return jsonify({"error": "ID de producto no proporcionado"}), 400
@@ -370,7 +373,6 @@ def mostrar_carrito():
         comunas = r_comunas.json()
     except Exception as e:
         comunas = []
-        # Puedes registrar el error en logs aquí
 
     if not carrito:
         if request.headers.get('Accept') == 'application/json':
