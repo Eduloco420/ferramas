@@ -1,0 +1,27 @@
+<!-- templates/buscar.html -->
+{% extends "base.html" %}
+{% block title %}Buscar | Ferremas{% endblock %}
+
+{% block content %}
+<h2 class="mb-4">Resultados de búsqueda para "{{ query }}"</h2>
+
+{% if resultados %}
+  <div class="row">
+    {% for producto in resultados %}
+      <div class="col-md-4 mb-4">
+        <div class="card h-100">
+          <img src="{{ url_for('static', filename='img/productos/' ~ producto.imagen) }}" class="card-img-top" alt="{{ producto.nombre }}">
+          <div class="card-body">
+            <h5 class="card-title">{{ producto.nombre }}</h5>
+            <p class="card-text">{{ producto.marca }}</p>
+            <p class="card-text fw-bold">${{ producto.precio }}</p>
+            <a href="{{ url_for('detalle_producto', id=producto.id) }}" class="btn btn-primary">Ver más</a>
+          </div>
+        </div>
+      </div>
+    {% endfor %}
+  </div>
+{% else %}
+  <p>No se encontraron productos que coincidan.</p>
+{% endif %}
+{% endblock %}

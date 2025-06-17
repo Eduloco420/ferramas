@@ -4,22 +4,28 @@ import math
 class ProductoModel:
     def obtener_todos(self):
         cursor = mysql.connection.cursor()
-        cursor.execute("SELECT * FROM producto")
+        # Traer producto y nombre del archivo de imagen
+        cursor.execute("""
+            SELECT p.id, p.nombre, p.marca, p.codigo, p.precio, p.vigente, i.nomArchivo
+            FROM producto p
+            LEFT JOIN imagenes i ON p.id = i.producto
+        """)
         datos = cursor.fetchall()
         cursor.close()
 
         productos = []
         for d in datos:
             productos.append({
-                'id':d[0],
-                'nombre':d[1],
-                'marca':d[2],
-                'codigo':d[3],
-                'precio':d[4],
-                'vigente':d[5]
+                'id': d[0],
+                'nombre': d[1],
+                'marca': d[2],
+                'codigo': d[3],
+                'precio': d[4],
+                'vigente': d[5],
+                'imagen': d[6] if d[6] else 'default.png'  # si no tiene imagen
             })
-            
         return productos
+
     
     def obtener_producto(self, id):
         cursor = mysql.connection.cursor()

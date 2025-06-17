@@ -11,4 +11,5 @@
 |ms-despacho     |   5007   |
 |ms-img          |   5008   |
 |ms-orchestrator |   5009   |
+|frontend        |   3000   |
 -----------------------------

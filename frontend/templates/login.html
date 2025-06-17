@@ -1,33 +1,44 @@
-<!-- templates/login.html -->
 {% extends "base.html" %}
-
-{% block title %}Iniciar Sesión - Ferremas{% endblock %}
+{% block title %}Iniciar Sesión | Ferremas{% endblock %}
 
 {% block content %}
+<div class="row justify-content-center">
+  <div class="col-md-6">
+    <div class="card shadow-lg rounded-4 p-4">
+      <h2 class="mb-4 text-center text-danger">Iniciar sesión</h2>
 
-<div class="d-flex justify-content-center align-items-center" style="min-height: 60vh;">
-  <div class="card shadow p-4" style="width: 100%; max-width: 400px;">
-    <h3 class="text-center mb-4">Iniciar Sesión</h3>
-    <form method="POST" novalidate>
-      <div class="mb-3">
-        <label for="correo" class="form-label">Correo:</label>
-        <input type="email" class="form-control" name="correo" id="correo" required>
+      {% with messages = get_flashed_messages() %}
+        {% if messages %}
+          {% for message in messages %}
+            <div class="alert alert-success alert-dismissible fade show" role="alert">
+              {{ message }}
+              <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Cerrar"></button>
+            </div>
+          {% endfor %}
+        {% endif %}
+      {% endwith %}
+
+      <form action="/auth/login" method="post" class="row g-3">
+        <div class="col-12">
+          <label for="correo" class="form-label">Correo electrónico</label>
+          <input type="email" class="form-control" id="correo" name="correo" placeholder="ejemplo@correo.com" required>
+        </div>
+        <div class="col-12">
+          <label for="password" class="form-label">Contraseña</label>
+          <input type="password" class="form-control" id="password" name="password" placeholder="Tu contraseña" required>
+        </div>
+        <div class="col-12 text-center">
+          <button type="submit" class="btn btn-danger w-100 mt-3">Entrar</button>
+        </div>
+      </form>
+
+      <div class="text-center mt-3">
+        <small>¿No tienes cuenta? <a href="/register" class="text-decoration-none">Regístrate aquí</a></small>
       </div>
-      <div class="mb-3">
-        <label for="password" class="form-label">Contraseña:</label>
-        <input type="password" class="form-control" name="password" id="password" required>
-      </div>
-      {% if mensaje %}
-      <div class="alert alert-danger" role="alert">
-        {{ mensaje }}
-      </div>
-      {% endif %}
-      <button type="submit" class="btn btn-primary w-100">Ingresar</button>
-    </form>
-    <div class="text-center mt-3">
-      <a href="/" class="btn btn-secondary w-100">Volver al Inicio</a>
     </div>
   </div>
 </div>
+
+
 
 {% endblock %}

@@ -1,5 +1,32 @@
-<form method="POST" action="/ventas">
-  Producto ID: <input type="text" name="producto_id" /><br/>
-  Cantidad: <input type="number" name="cantidad" /><br/>
-  <button type="submit">Vender</button>
-</form>
+<!-- templates/ventas.html -->
+{% extends "base.html" %}
+{% block title %}Mis Compras | Ferremas{% endblock %}
+
+{% block content %}
+<h2 class="mb-4">Historial de Compras</h2>
+
+{% if ventas %}
+<table class="table table-striped">
+  <thead>
+    <tr>
+      <th>Fecha</th>
+      <th>Producto</th>
+      <th>Cantidad</th>
+      <th>Total</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for venta in ventas %}
+    <tr>
+      <td>{{ venta.fecha }}</td>
+      <td>{{ venta.producto }}</td>
+      <td>{{ venta.cantidad }}</td>
+      <td>${{ venta.total }}</td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% else %}
+<p>No has realizado compras aún.</p>
+{% endif %}
+{% endblock %}

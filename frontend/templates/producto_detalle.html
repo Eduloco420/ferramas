@@ -1,0 +1,54 @@
+{% extends "base.html" %}
+{% block title %}{{ producto.nombre }} | Ferremas{% endblock %}
+
+{% block content %}
+<div class="container my-5">
+  <div class="card shadow-lg">
+    <div class="row g-0">
+      <!-- Imagen a la izquierda -->
+      <div class="col-md-5">
+        <img src="{{ url_for('static', filename='img/' + producto.imagen) }}" alt="{{ producto.nombre }}"
+             class="img-fluid rounded-start" style="height: 100%; object-fit: cover;">
+      </div>
+      
+      <!-- Información a la derecha -->
+      <div class="col-md-7">
+        <div class="card-body">
+          <h2 class="card-title">{{ producto.nombre }}</h2>
+          <p class="card-text"><strong>Marca:</strong> {{ producto.marca }}</p>
+          <p class="card-text"><strong>Código:</strong> {{ producto.codigo }}</p>
+          <p class="card-text"><strong>Precio:</strong> ${{ producto.precio }}</p>
+          {% if producto.descripcion %}
+          <p class="card-text">{{ producto.descripcion }}</p>
+          {% endif %}
+          <div class="mt-4">
+            <button id="agregar-carrito" class="btn btn-success">Agregar al carrito</button>
+            <a href="{{ url_for('productos') }}" class="btn btn-secondary ms-2">Seguir comprando</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Script para agregar al carrito -->
+<script>
+  document.getElementById('agregar-carrito').addEventListener('click', function() {
+    fetch('{{ url_for("agregar_carrito") }}', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ id: {{ producto.id }} })
+    })
+    .then(response => response.json())
+    .then(data => {
+      alert(data.mensaje || 'Producto agregado al carrito');
+    })
+    .catch(error => {
+      alert('Error al agregar producto al carrito');
+      console.error(error);
+    });
+  });
+</script>
+{% endblock %}

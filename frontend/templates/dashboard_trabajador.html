@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+{% block title %}Panel Trabajador | Ferremas{% endblock %}
+
+{% block content %}
+<h2 class="text-primary mb-4">Panel de Trabajador</h2>
+
+<p>Administra productos, pedidos y reportes desde aquí.</p>
+
+<a href="{{ url_for('listar_usuarios') }}" class="btn btn-primary m-2">Ver Usuarios</a>
+<a href="{{ url_for('listar_compras') }}" class="btn btn-success m-2">Ver Compras</a>
+
+{% endblock %}

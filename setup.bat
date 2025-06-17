@@ -13,6 +13,7 @@ set MICRO7=ms-token
 set MICRO8=ms-despacho
 set MICRO9=ms-img
 set MICRO10=ms-orchestrator
+set MICRO11=frontend
 
 call :setup_venv %MICRO1%
 call :setup_venv %MICRO2%
@@ -24,6 +25,7 @@ call :setup_venv %MICRO7%
 call :setup_venv %MICRO8%
 call :setup_venv %MICRO9%
 call :setup_venv %MICRO10%
+call :setup_venv %MICRO11%
 
 echo Todos los entornos virtuales han sido configurados.
 goto :eof

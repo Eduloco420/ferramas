@@ -1,0 +1,11 @@
+<!-- templates/error.html -->
+{% extends "base.html" %}
+{% block title %}Error | Ferremas{% endblock %}
+
+{% block content %}
+  <div class="alert alert-danger" role="alert">
+    <h4 class="alert-heading">¡Error!</h4>
+    <p>{{ mensaje }}</p>
+    <a href="{{ url_for('productos') }}" class="btn btn-primary">Volver a Productos</a>
+  </div>
+{% endblock %}

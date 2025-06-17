@@ -77,6 +77,8 @@ ALTER TABLE `pago` ADD FOREIGN KEY (`venta`) REFERENCES `ventas` (`id`);
 ALTER TABLE `despacho` ADD FOREIGN KEY (`venta`) REFERENCES `ventas` (`id`);
 
 ALTER TABLE `user` ADD FOREIGN KEY (`rol`) REFERENCES `rol` (`id`);
+INSERT INTO rol (id, nombreRol) VALUES (1, 'Cliente'), (2, 'Trabajador');
+
 
 ALTER TABLE `imagenes` ADD FOREIGN KEY (`producto`) REFERENCES `producto` (`id`);
 
