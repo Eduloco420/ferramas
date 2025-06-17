@@ -20,3 +20,7 @@ def obtener_producto(id):
 def modificar_producto(id):
     return orchestrator_controller.modificar_producto(id)
 
+@producto_bp.route('/buscar', methods=['GET'])
+def buscar_productos():
+    return orchestrator_controller.buscar_productos()
+

@@ -74,9 +74,9 @@ class ProductoController:
         return jsonify({'mensaje':'Producto modificado correctamente',}),201
 
     def buscar_productos(self):
-        data = request.get_json()
-        search = data.get('search')
-        pagina = data.get('pagina')
+        search = request.args.get('search')
+        pagina = request.args.get('pagina')
+        pagina = int(pagina)
         cant_prod = 12 
         offset = (pagina - 1) * cant_prod
 
@@ -95,7 +95,6 @@ class ProductoController:
                 'cantProductos':total_prod
             }
 
-            return response, 200
-        
+            return jsonify(response),200
         except Exception as e:
             return jsonify({'mensaje':'Error obteniendo los datos', 'Error':str(e)})

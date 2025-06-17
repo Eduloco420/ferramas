@@ -38,3 +38,10 @@ def precio_productos(id):
         return producto_controller.ver_precio(id)
     except Exception as e:
         return jsonify({'mensaje':'Error obteniendo los datos', 'error':str(e)}), 400
+
+@main.route('/productos/buscar', methods=['GET'])     
+def buscar_producto():
+    try:
+        return producto_controller.buscar_productos()
+    except Exception as e:
+        return jsonify({'mensaje':'Error obteniendo los datos', 'error':str(e)}), 400

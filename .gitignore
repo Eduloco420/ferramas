@@ -4,5 +4,6 @@
 /*/app/controllers/__pycache__
 /*/app/models/__pycache__
 /ms-img/app/static/img/*
+/ms-orchestrator/app/routes/__pycache__
 .history
 .env

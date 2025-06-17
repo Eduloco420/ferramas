@@ -255,4 +255,23 @@ class OrchestratorController:
                 'Error':str(e)
             }), 500
         
-            
+    def buscar_productos(self):
+        try:
+            search = request.args.get('search')
+            pagina_str = request.args.get('pagina')
+            try:
+                pagina = int(pagina_str)
+                if pagina < 1:
+                    return jsonify({'mensaje': 'El parámetro "pagina" debe ser un número entero mayor o igual a 1'}), 400
+            except ValueError:
+                return jsonify({'mensaje': 'El parámetro "pagina" debe ser un número entero válido'}), 400
+            data = {'pagina':pagina, 'search':search}   
+            producto_response = requests.get(f'{URL_MS_PRODUCTO}/productos/buscar', params=data)    
+            producto_data = producto_response.json()
+
+            return producto_data, producto_response.status_code
+        except Exception as e:
+            return jsonify({
+                'mensaje':'Error conectando al servicio',
+                'Error':str(e)
+            }), 500 
